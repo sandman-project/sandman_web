@@ -1,3 +1,5 @@
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/sandman-project/sandman_web/main.svg)](https://results.pre-commit.ci/latest/github/sandman-project/sandman_web/main)
+
 # Sandman Web
 
 Sandman Web is part of the [Sandman Project](https://github.com/sandman-project), which aims to provide a device that allows hospital style beds to be controlled by voice. This component provides a web interface. The web interface currently has the capability to view reports that are automatically collected each day by Sandman. Other features are planned, but have not completed development yet.
