@@ -105,5 +105,5 @@ def status_home() -> str:
     return render_template(
         "status.html",
         sandman_status=sandman_status,
-        rhasspy_status=rhasspy_status
+        rhasspy_status=rhasspy_status,
     )
