@@ -1,17 +1,21 @@
-import pytest
+"""Home for test fixtures, etc."""
 
 import flask
 import flask.testing
+import pytest
 
 import sandman_web
 
+
 @pytest.fixture
 def app() -> flask.Flask:
+    """Return a test app."""
+    app = sandman_web.create_app({"TESTING": True})
 
-   app = sandman_web.create_app({"TESTING": True})
+    yield app
 
-   yield app
 
 @pytest.fixture
-def client(app) -> flask.testing.FlaskClient:
-   return app.test_client()
+def client(app: flask.Flask) -> flask.testing.FlaskClient:
+    """Return a test client."""
+    return app.test_client()

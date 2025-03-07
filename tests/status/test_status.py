@@ -1,4 +1,9 @@
-import pytest
+"""Tests the status page."""
 
-def test_status(client) -> None:
-   assert client.get("/status").status_code == 200
+import flask
+import flask.testing
+
+
+def test_status(client: flask.testing.FlaskClient) -> None:
+    """Test the status page."""
+    assert client.get("/status").status_code == 200
