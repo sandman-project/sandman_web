@@ -3,13 +3,9 @@
 import datetime
 import json
 import os
-import pathlib
 from operator import itemgetter
 
-from flask import (
-    Blueprint,
-    render_template,
-)
+import flask
 from werkzeug.exceptions import abort
 
 _report_prefix = "sandman"
@@ -20,10 +16,10 @@ _report_date_time_format = "%Y/%m/%d %H:%M:%S %Z"
 
 
 def _get_reports_path() -> str:
-    return str(pathlib.Path.home()) + "/.sandman/reports"
+    return flask.current_app.config["BASE_DIR"] + "/reports"
 
 
-blueprint = Blueprint(
+blueprint = flask.Blueprint(
     "reports",
     __name__,
     url_prefix="/reports",
@@ -72,7 +68,7 @@ def index() -> str:
         reports, key=itemgetter("year", "month", "day"), reverse=True
     )
 
-    return render_template("reports.html", reports=sorted_reports)
+    return flask.render_template("reports.html", reports=sorted_reports)
 
 
 def _update_report_event_from_version_3(event: dict[any]) -> None:
@@ -231,7 +227,7 @@ def report(year: int, month: int, day: int) -> str:
     # set in the future.
     start_hour = 17
 
-    return render_template(
+    return flask.render_template(
         "report.html",
         start_date_string=report_start_date_string,
         end_date_string=report_name,

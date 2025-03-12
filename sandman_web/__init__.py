@@ -3,6 +3,7 @@
 import logging
 import logging.handlers
 import os
+import pathlib
 
 from flask import Flask, redirect, request
 
@@ -28,8 +29,13 @@ def create_app(test_config: dict[any] = None) -> Flask:
     test_config - Which testing configuration to use, if any.
     """
     app = Flask(__name__, instance_relative_config=True)
+
+    # Get the base directory for the data files.
+    base_dir = str(pathlib.Path.home()) + "/.sandman"
+
     app.config.from_mapping(
         SECRET_KEY="dev",
+        BASE_DIR=base_dir,
     )
 
     if test_config is None:
