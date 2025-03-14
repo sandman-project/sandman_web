@@ -10,7 +10,7 @@ import sandman_web
 @pytest.fixture
 def app() -> flask.Flask:
     """Return a test app."""
-    app = sandman_web.create_app({"TESTING": True})
+    app = sandman_web.create_app({"TESTING": True, "BASE_DIR": "tests/data"})
 
     yield app
 
