@@ -14,4 +14,8 @@ Please make all feature requests in the Sandman Discord. Only use Issues for rep
  ```bash
  uvx pre-commit run --all-files
  ```
-  - Ensure that all the tests pass. Tests will be added soon.
+  - Add any relevant tests. Ensure that all the tests pass. To run the tests with uv, you can use the following command from the repository root.
+  ```bash
+  uv run pytest
+  ```
+  - Open a pull request. Please try to keep pull requests as small and logically coherent as makes sense. That will help make them easier to review.
