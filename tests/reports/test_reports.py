@@ -4,6 +4,8 @@ import flask
 import flask.testing
 import pytest
 
+import sandman_web.reports.reports as reports
+
 
 def test_reports(client: flask.testing.FlaskClient) -> None:
     """Test the reports page."""
@@ -26,3 +28,37 @@ def test_report(
     response = client.get(url)
     assert response.status_code == status_code
     assert message in response.data
+
+
+_default_report_version = -1
+
+
+def _check_default_report(report: reports.Report) -> None:
+    """Check that the report has default values."""
+    assert report.version == _default_report_version
+    assert report.is_valid() == False
+
+
+def test_report_initialization() -> None:
+    """Test initializing reports."""
+    report = reports.Report()
+    _check_default_report(report)
+
+    with pytest.raises(TypeError):
+        report.version = ""
+    _check_default_report(report)
+
+    with pytest.raises(ValueError):
+        report.version = -2
+    _check_default_report(report)
+
+    intended_version = 3
+
+    report.version = intended_version
+    assert report.version == intended_version
+    assert report.is_valid() == True
+
+
+def test_report_loading() -> None:
+    """Test loading report files."""
+    assert True

@@ -1,11 +1,14 @@
 """Implements the reports list and individual reports webpages."""
 
+import dataclasses
 import datetime
 import json
 import os
+import typing
 from operator import itemgetter
 
 import flask
+import whenever
 from werkzeug.exceptions import abort
 
 _report_prefix = "sandman"
@@ -13,6 +16,58 @@ _report_extension = ".rpt"
 
 # The date and time format for report events.
 _report_date_time_format = "%Y/%m/%d %H:%M:%S %Z"
+
+
+type _ReportEventInfo = typing.Mapping[
+    str, typing.Mapping[str, int | str] | int | str
+]
+
+
+@dataclasses.dataclass
+class _ReportEvent:
+    """An event for a report file."""
+
+    when: whenever.ZonedDateTime
+    info: _ReportEventInfo
+
+
+class Report:
+    """All of the information from a report file."""
+
+    def __init__(self) -> None:
+        """Initialize the report."""
+        self.__version = -1
+        self.__events: list[_ReportEvent] = []
+
+    @property
+    def version(self) -> int:
+        """Get the version."""
+        return self.__version
+
+    @version.setter
+    def version(self, version: int) -> None:
+        """Set the version."""
+        if isinstance(version, int) == False:
+            raise TypeError("Version must be an integer.")
+
+        if version < 0:
+            raise ValueError("Cannot set a negative version.")
+
+        self.__version = version
+
+    def is_valid(self) -> bool:
+        """Check whether this is a valid report."""
+        if self.__version < 0:
+            return False
+
+        return True
+
+    @classmethod
+    def parse_from_file(cls, filename: str) -> typing.Self:
+        """Parse a report from a file."""
+        report = cls()
+
+        return report
 
 
 def _get_reports_path() -> str:
@@ -132,15 +187,13 @@ def _parse_report_file(filename: str) -> tuple[int, list[any]]:
 
                 else:
                     # Get the date and time and convert it to an object.
-                    line_date_time = line_json.get("dateTime")
+                    line_date_time = line_json.get("when")
 
                     if line_date_time is None:
                         continue
 
                     try:
-                        info_date_time = datetime.datetime.strptime(
-                            line_date_time, _report_date_time_format
-                        )
+                        info_date_time = whenever.ZonedDateTime.parse_iso()
 
                     except ValueError:
                         continue
