@@ -3,6 +3,7 @@
 import flask
 import flask.testing
 import pytest
+import whenever
 
 import sandman_web.reports.reports as reports
 
@@ -36,6 +37,7 @@ _default_report_version = -1
 def _check_default_report(report: reports.Report) -> None:
     """Check that the report has default values."""
     assert report.version == _default_report_version
+    assert len(report.events) == 0
     assert report.is_valid() == False
 
 
@@ -56,6 +58,57 @@ def test_report_initialization() -> None:
 
     report.version = intended_version
     assert report.version == intended_version
+    assert len(report.events) == 0
+    assert report.is_valid() == True
+
+    # Add some events.
+
+    first_time = whenever.ZonedDateTime(
+        year=2026,
+        month=3,
+        day=29,
+        hour=16,
+        minute=59,
+        second=59,
+        tz="America/Chicago",
+    )
+    first_info: reports.ReportEventInfo = {
+        "type": "control",
+        "control": "test_control",
+        "action": "up",
+        "source": "voice",
+    }
+    first_event = reports.ReportEvent(first_time, first_info)
+
+    report.append_event(first_event)
+    assert report.version == intended_version
+    assert len(report.events) == 1
+    if len(report.events) > 0:
+        assert report.events[0] == first_event
+    assert report.is_valid() == True
+
+    second_time = whenever.ZonedDateTime(
+        year=2026,
+        month=3,
+        day=29,
+        hour=17,
+        minute=59,
+        second=59,
+        tz="America/Chicago",
+    )
+    second_info: reports.ReportEventInfo = {
+        "type": "routine",
+        "routine": "wake",
+        "action": "up",
+    }
+    second_event = reports.ReportEvent(second_time, second_info)
+
+    report.append_event(second_event)
+    assert report.version == intended_version
+    assert len(report.events) == 2
+    if len(report.events) > 1:
+        assert report.events[0] == first_event
+        assert report.events[1] == second_event
     assert report.is_valid() == True
 
 

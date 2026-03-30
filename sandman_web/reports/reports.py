@@ -18,17 +18,17 @@ _report_extension = ".rpt"
 _report_date_time_format = "%Y/%m/%d %H:%M:%S %Z"
 
 
-type _ReportEventInfo = typing.Mapping[
+type ReportEventInfo = typing.Mapping[
     str, typing.Mapping[str, int | str] | int | str
 ]
 
 
 @dataclasses.dataclass
-class _ReportEvent:
+class ReportEvent:
     """An event for a report file."""
 
     when: whenever.ZonedDateTime
-    info: _ReportEventInfo
+    info: ReportEventInfo
 
 
 class Report:
@@ -37,7 +37,7 @@ class Report:
     def __init__(self) -> None:
         """Initialize the report."""
         self.__version = -1
-        self.__events: list[_ReportEvent] = []
+        self.__events: list[ReportEvent] = []
 
     @property
     def version(self) -> int:
@@ -54,6 +54,15 @@ class Report:
             raise ValueError("Cannot set a negative version.")
 
         self.__version = version
+
+    @property
+    def events(self) -> list[ReportEvent]:
+        """Get the events."""
+        return self.__events
+
+    def append_event(self, event: ReportEvent) -> None:
+        """Add an event to the end."""
+        self.__events.append(event)
 
     def is_valid(self) -> bool:
         """Check whether this is a valid report."""
