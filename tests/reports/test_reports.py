@@ -114,4 +114,11 @@ def test_report_initialization() -> None:
 
 def test_report_loading() -> None:
     """Test loading report files."""
-    assert True
+    path: str = "tests/data/reports/"
+
+    with pytest.raises(FileNotFoundError):
+        report = reports.Report.parse_from_file(path + "a")
+
+    # Empty files cannot be parsed.
+    report = reports.Report.parse_from_file(path + "report_test_empty.rpt")
+    _check_default_report(report)

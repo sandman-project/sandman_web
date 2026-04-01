@@ -3,6 +3,7 @@
 import dataclasses
 import datetime
 import json
+import logging
 import os
 import typing
 from operator import itemgetter
@@ -10,6 +11,8 @@ from operator import itemgetter
 import flask
 import whenever
 from werkzeug.exceptions import abort
+
+_logger = logging.getLogger("sandman.routines")
 
 _report_prefix = "sandman"
 _report_extension = ".rpt"
@@ -75,6 +78,14 @@ class Report:
     def parse_from_file(cls, filename: str) -> typing.Self:
         """Parse a report from a file."""
         report = cls()
+
+        try:
+            with open(filename) as file:
+                _report_lines = file.readlines()
+
+        except FileNotFoundError as error:
+            _logger.error("Could not find report file '%s'.", filename)
+            raise error
 
         return report
 
