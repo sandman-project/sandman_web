@@ -81,11 +81,35 @@ class Report:
 
         try:
             with open(filename) as file:
-                _report_lines = file.readlines()
+                report_lines = file.readlines()
 
         except FileNotFoundError as error:
             _logger.error("Could not find report file '%s'.", filename)
             raise error
+
+        num_lines = len(report_lines)
+
+        if num_lines == 0:
+            _logger.warning("Report file '%s' is empty.", filename)
+            return report
+
+        # The first line is expected to be the header.
+        try:
+            header_json = json.loads(report_lines[0])
+
+        except json.JSONDecodeError:
+            _logger.error(
+                "JSON error decoding header for report file '%s'.",
+                filename,
+            )
+            return report
+
+        try:
+            report.version = header_json["version"]
+
+        except KeyError:
+            _logger.error("Missing version in report file '%s'.", filename)
+            return report
 
         return report
 

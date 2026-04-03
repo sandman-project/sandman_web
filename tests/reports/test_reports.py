@@ -122,3 +122,14 @@ def test_report_loading() -> None:
     # Empty files cannot be parsed.
     report = reports.Report.parse_from_file(path + "report_test_empty.rpt")
     _check_default_report(report)
+
+    # Must have a valid header.
+    report = reports.Report.parse_from_file(
+        path + "report_test_invalid_header.rpt"
+    )
+    _check_default_report(report)
+
+    report = reports.Report.parse_from_file(
+        path + "report_test_missing_version.rpt"
+    )
+    _check_default_report(report)
