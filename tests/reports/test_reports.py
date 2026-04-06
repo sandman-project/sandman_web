@@ -133,3 +133,13 @@ def test_report_loading() -> None:
         path + "report_test_missing_version.rpt"
     )
     _check_default_report(report)
+
+    report = reports.Report.parse_from_file(
+        path + "report_test_type_version.rpt"
+    )
+    _check_default_report(report)
+
+    report = reports.Report.parse_from_file(
+        path + "report_test_invalid_version.rpt"
+    )
+    _check_default_report(report)

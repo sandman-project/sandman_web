@@ -111,6 +111,14 @@ class Report:
             _logger.error("Missing version in report file '%s'.", filename)
             return report
 
+        except (TypeError, ValueError):
+            _logger.error(
+                "Invalid version '%s' in report file '%s'.",
+                str(header_json["version"]),
+                filename,
+            )
+            return report
+
         return report
 
 
