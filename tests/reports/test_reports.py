@@ -32,11 +32,13 @@ def test_report(
 
 
 _default_report_version = -1
+_default_report_start = None
 
 
 def _check_default_report(report: reports.Report) -> None:
     """Check that the report has default values."""
     assert report.version == _default_report_version
+    assert report.start == _default_report_start
     assert len(report.events) == 0
     assert report.is_valid() == False
 
@@ -58,6 +60,29 @@ def test_report_initialization() -> None:
 
     report.version = intended_version
     assert report.version == intended_version
+    assert report.start == _default_report_start
+    assert len(report.events) == 0
+    assert report.is_valid() == False
+
+    with pytest.raises(TypeError):
+        report.start = ""
+    assert report.version == intended_version
+    assert report.start == _default_report_start
+    assert len(report.events) == 0
+    assert report.is_valid() == False
+
+    start_time = whenever.ZonedDateTime(
+        year=2026,
+        month=3,
+        day=29,
+        hour=17,
+        minute=0,
+        second=0,
+        tz="America/Chicago",
+    )
+    report.start = start_time
+    assert report.version == intended_version
+    assert report.start == start_time
     assert len(report.events) == 0
     assert report.is_valid() == True
 
@@ -67,7 +92,7 @@ def test_report_initialization() -> None:
         year=2026,
         month=3,
         day=29,
-        hour=16,
+        hour=18,
         minute=59,
         second=59,
         tz="America/Chicago",
@@ -82,6 +107,7 @@ def test_report_initialization() -> None:
 
     report.append_event(first_event)
     assert report.version == intended_version
+    assert report.start == start_time
     assert len(report.events) == 1
     if len(report.events) > 0:
         assert report.events[0] == first_event
@@ -91,7 +117,7 @@ def test_report_initialization() -> None:
         year=2026,
         month=3,
         day=29,
-        hour=17,
+        hour=19,
         minute=59,
         second=59,
         tz="America/Chicago",
@@ -105,6 +131,7 @@ def test_report_initialization() -> None:
 
     report.append_event(second_event)
     assert report.version == intended_version
+    assert report.start == start_time
     assert len(report.events) == 2
     if len(report.events) > 1:
         assert report.events[0] == first_event

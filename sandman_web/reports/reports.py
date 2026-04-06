@@ -40,6 +40,7 @@ class Report:
     def __init__(self) -> None:
         """Initialize the report."""
         self.__version = -1
+        self.__start: whenever.ZonedDateTime | None = None
         self.__events: list[ReportEvent] = []
 
     @property
@@ -59,6 +60,19 @@ class Report:
         self.__version = version
 
     @property
+    def start(self) -> whenever.ZonedDateTime | None:
+        """Get the start."""
+        return self.__start
+
+    @start.setter
+    def start(self, start: whenever.ZonedDateTime) -> None:
+        """Set the start."""
+        if isinstance(start, whenever.ZonedDateTime) == False:
+            raise TypeError("Start must be a zoned date/time.")
+
+        self.__start = start
+
+    @property
     def events(self) -> list[ReportEvent]:
         """Get the events."""
         return self.__events
@@ -70,6 +84,9 @@ class Report:
     def is_valid(self) -> bool:
         """Check whether this is a valid report."""
         if self.__version < 0:
+            return False
+
+        if self.__start is None:
             return False
 
         return True
@@ -117,6 +134,10 @@ class Report:
                 str(header_json["version"]),
                 filename,
             )
+            return report
+
+        # Don't support loading reports older than version 4.
+        if report.version < 4:
             return report
 
         return report
