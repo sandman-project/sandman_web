@@ -140,6 +140,23 @@ class Report:
         if report.version < 4:
             return report
 
+        try:
+            report.start = whenever.ZonedDateTime.parse_iso(
+                header_json["start"]
+            )
+
+        except KeyError:
+            _logger.error("Missing start in report file '%s'.", filename)
+            return report
+
+        except (TypeError, ValueError):
+            _logger.error(
+                "Invalid start '%s' in report file '%s'.",
+                str(header_json["start"]),
+                filename,
+            )
+            return report
+
         return report
 
 

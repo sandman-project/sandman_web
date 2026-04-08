@@ -170,3 +170,30 @@ def test_report_loading() -> None:
         path + "report_test_invalid_version.rpt"
     )
     _check_default_report(report)
+
+    # Beyond this point we have valid versions.
+    expected_version = 4
+
+    report = reports.Report.parse_from_file(
+        path + "report_test_missing_start.rpt"
+    )
+    assert report.version == expected_version
+    assert report.start == _default_report_start
+    assert len(report.events) == 0
+    assert report.is_valid() == False
+
+    report = reports.Report.parse_from_file(
+        path + "report_test_type_start.rpt"
+    )
+    assert report.version == expected_version
+    assert report.start == _default_report_start
+    assert len(report.events) == 0
+    assert report.is_valid() == False
+
+    report = reports.Report.parse_from_file(
+        path + "report_test_invalid_start.rpt"
+    )
+    assert report.version == expected_version
+    assert report.start == _default_report_start
+    assert len(report.events) == 0
+    assert report.is_valid() == False
