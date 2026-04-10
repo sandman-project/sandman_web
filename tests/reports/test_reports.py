@@ -31,6 +31,38 @@ def test_report(
     assert message in response.data
 
 
+_default_report_event_when = None
+
+
+def _check_default_report_event(event: reports.ReportEvent) -> None:
+    """Check that the report event has default values."""
+    assert event.when == _default_report_event_when
+    assert event.is_valid() == False
+
+
+def test_report_event_initialization() -> None:
+    """Test initializing report events."""
+    event = reports.ReportEvent()
+    _check_default_report_event(event)
+
+    with pytest.raises(TypeError):
+        event.when = ""
+    _check_default_report_event(event)
+
+    first_time = whenever.ZonedDateTime(
+        year=2026,
+        month=3,
+        day=29,
+        hour=18,
+        minute=59,
+        second=59,
+        tz="America/Chicago",
+    )
+    event.when = first_time
+    assert event.when == first_time
+    assert event.is_valid() == True
+
+
 _default_report_version = -1
 _default_report_start = None
 

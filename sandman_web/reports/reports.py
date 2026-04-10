@@ -1,6 +1,5 @@
 """Implements the reports list and individual reports webpages."""
 
-import dataclasses
 import datetime
 import json
 import logging
@@ -26,12 +25,33 @@ type ReportEventInfo = typing.Mapping[
 ]
 
 
-@dataclasses.dataclass
 class ReportEvent:
     """An event for a report file."""
 
-    when: whenever.ZonedDateTime
-    info: ReportEventInfo
+    def __init__(self) -> None:
+        """Initialize the report event."""
+        self.__when: whenever.ZonedDateTime | None = None
+        self.__info: ReportEventInfo = {}
+
+    @property
+    def when(self) -> whenever.ZonedDateTime | None:
+        """Get the when."""
+        return self.__when
+
+    @when.setter
+    def when(self, when: whenever.ZonedDateTime) -> None:
+        """Set the when."""
+        if isinstance(when, whenever.ZonedDateTime) == False:
+            raise TypeError("When must be a zoned date/time.")
+
+        self.__when = when
+
+    def is_valid(self) -> bool:
+        """Check whether this is a valid report event."""
+        if self.__when is None:
+            return False
+
+        return True
 
 
 class Report:
