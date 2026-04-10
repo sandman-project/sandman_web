@@ -46,9 +46,28 @@ class ReportEvent:
 
         self.__when = when
 
+    @property
+    def info(self) -> ReportEventInfo:
+        """Get the info."""
+        return self.__info
+
+    @info.setter
+    def info(self, info: ReportEventInfo) -> None:
+        """Set the info."""
+        if isinstance(info, dict) == False:
+            raise TypeError("Info must be a ReportEventInfo.")
+
+        # This will be more robust if the info is a concrete type.
+
+        self.__info = info
+
     def is_valid(self) -> bool:
         """Check whether this is a valid report event."""
         if self.__when is None:
+            return False
+
+        # This will be a lot more robust if the info becomes a concrete class.
+        if self.__info == {}:
             return False
 
         return True

@@ -32,11 +32,13 @@ def test_report(
 
 
 _default_report_event_when = None
+_default_report_event_info = {}
 
 
 def _check_default_report_event(event: reports.ReportEvent) -> None:
     """Check that the report event has default values."""
     assert event.when == _default_report_event_when
+    assert event.info == _default_report_event_info
     assert event.is_valid() == False
 
 
@@ -49,7 +51,7 @@ def test_report_event_initialization() -> None:
         event.when = ""
     _check_default_report_event(event)
 
-    first_time = whenever.ZonedDateTime(
+    intended_time = whenever.ZonedDateTime(
         year=2026,
         month=3,
         day=29,
@@ -58,8 +60,27 @@ def test_report_event_initialization() -> None:
         second=59,
         tz="America/Chicago",
     )
-    event.when = first_time
-    assert event.when == first_time
+    event.when = intended_time
+    assert event.when == intended_time
+    assert event.info == _default_report_event_info
+    assert event.is_valid() == False
+
+    with pytest.raises(TypeError):
+        event.info = 1
+    event.when = intended_time
+    assert event.when == intended_time
+    assert event.info == _default_report_event_info
+    assert event.is_valid() == False
+
+    intended_info: reports.ReportEventInfo = {
+        "type": "control",
+        "control": "test_control",
+        "action": "up",
+        "source": "voice",
+    }
+    event.info = intended_info
+    assert event.when == intended_time
+    assert event.info == intended_info
     assert event.is_valid() == True
 
 
@@ -135,7 +156,10 @@ def test_report_initialization() -> None:
         "action": "up",
         "source": "voice",
     }
-    first_event = reports.ReportEvent(first_time, first_info)
+    first_event = reports.ReportEvent()
+    first_event.when = first_time
+    first_event.info = first_info
+    assert first_event.is_valid() == True
 
     report.append_event(first_event)
     assert report.version == intended_version
@@ -159,7 +183,10 @@ def test_report_initialization() -> None:
         "routine": "wake",
         "action": "up",
     }
-    second_event = reports.ReportEvent(second_time, second_info)
+    second_event = reports.ReportEvent()
+    second_event.when = second_time
+    second_event.info = second_info
+    assert second_event.is_valid() == True
 
     report.append_event(second_event)
     assert report.version == intended_version
