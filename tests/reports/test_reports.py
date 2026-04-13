@@ -256,3 +256,46 @@ def test_report_loading() -> None:
     assert report.start == _default_report_start
     assert len(report.events) == 0
     assert report.is_valid() == False
+
+    # Now we are testing events.
+    start_time = whenever.ZonedDateTime(
+        year=2026,
+        month=3,
+        day=2,
+        hour=17,
+        minute=0,
+        second=0,
+        tz="America/Chicago",
+    )
+
+    report = reports.Report.parse_from_file(
+        path + "report_test_event_invalid.rpt"
+    )
+    assert report.version == expected_version
+    assert report.start == start_time
+    assert len(report.events) == 0
+    assert report.is_valid() == True
+
+    report = reports.Report.parse_from_file(
+        path + "report_test_event_missing_when.rpt"
+    )
+    assert report.version == expected_version
+    assert report.start == start_time
+    assert len(report.events) == 0
+    assert report.is_valid() == True
+
+    report = reports.Report.parse_from_file(
+        path + "report_test_event_type_when.rpt"
+    )
+    assert report.version == expected_version
+    assert report.start == start_time
+    assert len(report.events) == 0
+    assert report.is_valid() == True
+
+    report = reports.Report.parse_from_file(
+        path + "report_test_event_invalid_when.rpt"
+    )
+    assert report.version == expected_version
+    assert report.start == start_time
+    assert len(report.events) == 0
+    assert report.is_valid() == True

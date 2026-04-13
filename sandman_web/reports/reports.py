@@ -79,6 +79,43 @@ class ReportEvent:
 
         return (self.__when == other.__when) and (self.__info == other.__info)
 
+    @classmethod
+    def parse_from_string(
+        cls, event_string: str, filename: str
+    ) -> typing.Self:
+        """Parse the event from a (JSON) string."""
+        event = cls()
+
+        try:
+            event_json = json.loads(event_string)
+
+        except json.JSONDecodeError:
+            _logger.warning(
+                "JSON error decoding event for report file '%s'.",
+                filename,
+            )
+            return event
+
+        try:
+            event.when = whenever.ZonedDateTime.parse_iso(event_json["when"])
+
+        except KeyError:
+            _logger.warning(
+                "Missing 'when' key in event in report file '%s'.",
+                filename,
+            )
+            return event
+
+        except (TypeError, ValueError):
+            _logger.warning(
+                "Invalid when '%s' in event in report file '%s'.",
+                str(event_json["when"]),
+                filename,
+            )
+            return event
+
+        return event
+
 
 class Report:
     """All of the information from a report file."""
@@ -202,6 +239,15 @@ class Report:
                 filename,
             )
             return report
+
+        # Load the events.
+        for line_index in range(1, num_lines):
+            event = ReportEvent.parse_from_string(
+                report_lines[line_index], filename
+            )
+
+            if event.is_valid() == True:
+                report.append_event(event)
 
         return report
 
