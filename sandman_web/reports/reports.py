@@ -72,6 +72,13 @@ class ReportEvent:
 
         return True
 
+    def __eq__(self, other: object) -> bool:
+        """Check whether this event and another have equal values."""
+        if not isinstance(other, ReportEvent):
+            return NotImplemented
+
+        return (self.__when == other.__when) and (self.__info == other.__info)
+
 
 class Report:
     """All of the information from a report file."""
