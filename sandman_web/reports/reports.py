@@ -58,6 +58,8 @@ class ReportEvent:
             raise TypeError("Info must be a ReportEventInfo.")
 
         # This will be more robust if the info is a concrete type.
+        if info == {}:
+            raise ValueError("Info must not be an empty dictionary.")
 
         self.__info = info
 
@@ -113,6 +115,34 @@ class ReportEvent:
                 filename,
             )
             return event
+
+        try:
+            info = event_json["info"]
+
+        except KeyError:
+            _logger.warning(
+                "Missing 'info' key in event in report file '%s'.",
+                filename,
+            )
+
+        else:
+            if isinstance(info, dict) == True:
+                try:
+                    event.info = dict(info)
+
+                except ValueError:
+                    _logger.warning(
+                        "Invalid info '%s' in event in report file '%s'.",
+                        str(info),
+                        filename,
+                    )
+
+            else:
+                _logger.warning(
+                    "Invalid info '%s' in event in report file '%s'.",
+                    str(info),
+                    filename,
+                )
 
         return event
 

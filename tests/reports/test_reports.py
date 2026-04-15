@@ -96,6 +96,22 @@ def _check_default_report(report: reports.Report) -> None:
     assert report.is_valid() == False
 
 
+def _check_expected_report_events(
+    events: list[reports.ReportEvent],
+    expected_events: list[reports.ReportEvent],
+) -> None:
+    """Check whether report events match expected values."""
+    num_events = len(events)
+    num_expected_events = len(expected_events)
+    assert num_events == num_expected_events
+
+    if num_events != num_expected_events:
+        return
+
+    for index in range(num_events):
+        assert events[index] == expected_events[index]
+
+
 def test_report_initialization() -> None:
     """Test initializing reports."""
     report = reports.Report()
@@ -109,17 +125,17 @@ def test_report_initialization() -> None:
         report.version = -2
     _check_default_report(report)
 
-    intended_version = 3
+    expected_version = 3
 
-    report.version = intended_version
-    assert report.version == intended_version
+    report.version = expected_version
+    assert report.version == expected_version
     assert report.start == _default_report_start
     assert len(report.events) == 0
     assert report.is_valid() == False
 
     with pytest.raises(TypeError):
         report.start = ""
-    assert report.version == intended_version
+    assert report.version == expected_version
     assert report.start == _default_report_start
     assert len(report.events) == 0
     assert report.is_valid() == False
@@ -134,7 +150,7 @@ def test_report_initialization() -> None:
         tz="America/Chicago",
     )
     report.start = start_time
-    assert report.version == intended_version
+    assert report.version == expected_version
     assert report.start == start_time
     assert len(report.events) == 0
     assert report.is_valid() == True
@@ -162,11 +178,9 @@ def test_report_initialization() -> None:
     assert first_event.is_valid() == True
 
     report.append_event(first_event)
-    assert report.version == intended_version
+    assert report.version == expected_version
     assert report.start == start_time
-    assert len(report.events) == 1
-    if len(report.events) > 0:
-        assert report.events[0] == first_event
+    _check_expected_report_events(report.events, [first_event])
     assert report.is_valid() == True
 
     second_time = whenever.ZonedDateTime(
@@ -189,12 +203,9 @@ def test_report_initialization() -> None:
     assert second_event.is_valid() == True
 
     report.append_event(second_event)
-    assert report.version == intended_version
+    assert report.version == expected_version
     assert report.start == start_time
-    assert len(report.events) == 2
-    if len(report.events) > 1:
-        assert report.events[0] == first_event
-        assert report.events[1] == second_event
+    _check_expected_report_events(report.events, [first_event, second_event])
     assert report.is_valid() == True
 
 
@@ -268,12 +279,54 @@ def test_report_loading() -> None:
         tz="America/Chicago",
     )
 
+    time0 = whenever.ZonedDateTime(
+        year=2026,
+        month=3,
+        day=2,
+        hour=23,
+        minute=44,
+        second=49,
+        tz="America/Chicago",
+    )
+
+    time1 = whenever.ZonedDateTime(
+        year=2026,
+        month=3,
+        day=2,
+        hour=23,
+        minute=44,
+        second=50,
+        tz="America/Chicago",
+    )
+
+    expected_event0 = reports.ReportEvent()
+    expected_event0.when = time0
+    expected_event0.info = {
+        "type": "control",
+        "control": "back",
+        "action": "up",
+        "source": "voice",
+    }
+    assert expected_event0.is_valid() == True
+
+    expected_event1 = reports.ReportEvent()
+    expected_event1.when = time1
+    expected_event1.info = {
+        "type": "control",
+        "control": "back",
+        "action": "down",
+        "source": "voice",
+    }
+    assert expected_event1.is_valid() == True
+
+    expected_events = [expected_event0, expected_event1]
+
     report = reports.Report.parse_from_file(
         path + "report_test_event_invalid.rpt"
     )
     assert report.version == expected_version
     assert report.start == start_time
-    assert len(report.events) == 0
+    _check_expected_report_events(report.events, [expected_event1])
     assert report.is_valid() == True
 
     report = reports.Report.parse_from_file(
@@ -281,7 +334,7 @@ def test_report_loading() -> None:
     )
     assert report.version == expected_version
     assert report.start == start_time
-    assert len(report.events) == 0
+    _check_expected_report_events(report.events, [expected_event1])
     assert report.is_valid() == True
 
     report = reports.Report.parse_from_file(
@@ -289,7 +342,7 @@ def test_report_loading() -> None:
     )
     assert report.version == expected_version
     assert report.start == start_time
-    assert len(report.events) == 0
+    _check_expected_report_events(report.events, [expected_event1])
     assert report.is_valid() == True
 
     report = reports.Report.parse_from_file(
@@ -297,5 +350,37 @@ def test_report_loading() -> None:
     )
     assert report.version == expected_version
     assert report.start == start_time
-    assert len(report.events) == 0
+    _check_expected_report_events(report.events, [expected_event1])
+    assert report.is_valid() == True
+
+    report = reports.Report.parse_from_file(
+        path + "report_test_event_missing_info.rpt"
+    )
+    assert report.version == expected_version
+    assert report.start == start_time
+    _check_expected_report_events(report.events, [expected_event1])
+    assert report.is_valid() == True
+
+    report = reports.Report.parse_from_file(
+        path + "report_test_event_type_info.rpt"
+    )
+    assert report.version == expected_version
+    assert report.start == start_time
+    _check_expected_report_events(report.events, [expected_event1])
+    assert report.is_valid() == True
+
+    report = reports.Report.parse_from_file(
+        path + "report_test_event_invalid_info.rpt"
+    )
+    assert report.version == expected_version
+    assert report.start == start_time
+    _check_expected_report_events(report.events, [expected_event1])
+    assert report.is_valid() == True
+
+    report = reports.Report.parse_from_file(
+        path + "report_test_valid_events.rpt"
+    )
+    assert report.version == expected_version
+    assert report.start == start_time
+    _check_expected_report_events(report.events, expected_events)
     assert report.is_valid() == True
