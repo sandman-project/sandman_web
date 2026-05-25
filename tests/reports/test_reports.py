@@ -13,13 +13,15 @@ def test_reports(client: flask.testing.FlaskClient) -> None:
     response = client.get("/reports/")
     assert response.status_code == 200
     assert b"/reports/2024/12/8/report" in response.data
+    assert b"/reports/2026/3/2/report" in response.data
 
 
 @pytest.mark.parametrize(
     ("url", "status_code", "message"),
     (
-        ("/reports/2024/12/8/report", 200, b"2024-12-08"),
+        ("/reports/2024/12/8/report", 404, b""),
         ("/reports/2024/12/9/report", 404, b""),
+        ("/reports/2026/3/2/report", 200, b"2026-03-02"),
     ),
 )
 def test_report(

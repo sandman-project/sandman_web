@@ -338,99 +338,6 @@ def index() -> str:
     return flask.render_template("reports.html", reports=sorted_reports)
 
 
-def _update_report_event_from_version_3(event: dict[any]) -> None:
-    # Handle the schedule -> routine rename on on old data.
-    if event["type"] == "schedule":
-        event["type"] = "routine"
-
-    if event["type"] == "control" and event["source"] == "schedule":
-        event["source"] = "routine"
-
-
-def _make_report_event_from_version_2(event: str) -> dict[any]:
-    # Convert the event into the most likely sort of control event.
-    control_action_parts = event.split(": ")
-    control_name = control_action_parts[0]
-
-    control_action = "stop"
-    if control_action_parts[1] == "moving up":
-        control_action = "move up"
-    elif control_action_parts[1] == "moving down":
-        control_action = "move down"
-
-    converted_event = {
-        "type": "control",
-        "control": control_name,
-        "action": control_action,
-        "source": "command",
-    }
-
-    return converted_event
-
-
-def _parse_report_file(filename: str) -> tuple[int, list[any]]:
-    """Parse a report file.
-
-    Returns a tuple containing the version as the first element (or None if
-    there was an error). The second element of the tuple is a list of tuples.
-    These list elements correspond to events from the report, where the first
-    element is the date and time, and the second is the event information.
-    """
-    version = None
-    infos = []
-
-    try:
-        with open(filename, encoding="utf-8") as report_file:
-            # Process every line of the file.
-            for line_index, line in enumerate(report_file):
-                # Try to convert the line to JSON.
-                try:
-                    line_json = json.loads(line)
-
-                except json.JSONDecodeError:
-                    continue
-
-                # The first line should be the header information.
-                if line_index == 0:
-                    version = line_json.get("version")
-
-                    if version is None:
-                        break
-
-                else:
-                    # Get the date and time and convert it to an object.
-                    line_date_time = line_json.get("when")
-
-                    if line_date_time is None:
-                        continue
-
-                    try:
-                        info_date_time = whenever.ZonedDateTime.parse_iso()
-
-                    except ValueError:
-                        continue
-
-                    line_event = line_json.get("event")
-
-                    if line_event is None:
-                        line_event = "None"
-
-                    if version == 3:
-                        _update_report_event_from_version_3(line_event)
-
-                    elif version == 2:
-                        line_event = _make_report_event_from_version_2(
-                            line_event
-                        )
-
-                    infos.append((info_date_time, line_event))
-
-    except OSError:
-        return (version, infos)
-
-    return (version, infos)
-
-
 @blueprint.route("/<int:year>/<int:month>/<int:day>/report")
 def report(year: int, month: int, day: int) -> str:
     """Implement the page for a specific report."""
@@ -441,56 +348,53 @@ def report(year: int, month: int, day: int) -> str:
         reports_path + "/" + _report_prefix + report_name + _report_extension
     )
 
-    # Try to generate a report start time to fall back on if we don't get one
-    # from the file.
-    date_format = "%Y-%m-%d"
-
-    try:
-        report_end_date = datetime.datetime.strptime(report_name, date_format)
-
-    except ValueError:
-        abort(404, "Oops!")
-
-    # The start date is one day before.
-    report_start_date_time = report_end_date + datetime.timedelta(
-        days=-1, hours=17
-    )
-
     # Attempt to parse the data in the file.
-    report_version, report_infos = _parse_report_file(report_filename)
+    try:
+        loaded_report = Report.parse_from_file(report_filename)
 
-    if report_version is None:
-        abort(404, "Oops!")
+    except FileNotFoundError:
+        abort(404, "Report not found.")
+
+    if loaded_report.is_valid() == False:
+        abort(404, "Report invalid.")
+
+    report_start = loaded_report.start
 
     # Now that we have pulled data out of the file, do some processing to
     # convert it to what we need for display. Part of that will be converting
     # to dictionaries but also calculating the offset from the start time.
     event_infos = []
 
-    for date_time, event in report_infos:
+    for event in loaded_report.events:
+        if event.is_valid() == False:
+            continue
+
+        event_time = event.when
+
         # Figure out how many seconds from the start this event is.
-        seconds_from_start = int(
-            (date_time - report_start_date_time).total_seconds()
-        )
+        since_start = event_time - report_start
+        seconds_from_start = int(since_start.in_seconds())
 
         event_info = {
-            "year": date_time.year,
-            "month": date_time.month,
-            "day": date_time.day,
-            "hour": date_time.hour,
-            "minute": date_time.minute,
-            "second": date_time.second,
+            "year": event_time.year,
+            "month": event_time.month,
+            "day": event_time.day,
+            "hour": event_time.hour,
+            "minute": event_time.minute,
+            "second": event_time.second,
             "secondsFromStart": seconds_from_start,
-            "event": event,
+            "info": event.info,
         }
 
         event_infos.append(event_info)
 
-    report_start_date_string = report_start_date_time.strftime("%Y-%m-%d")
+    report_start_date_string = (
+        f"{report_start.year:04d}-"
+        + f"{report_start.month:02d}-"
+        + f"{report_start.day:02d}"
+    )
 
-    # Either generate these from the start time or based on the actual data
-    # set in the future.
-    start_hour = 17
+    start_hour = report_start.hour
 
     return flask.render_template(
         "report.html",
