@@ -388,10 +388,18 @@ def report(year: int, month: int, day: int) -> str:
 
         event_infos.append(event_info)
 
+    report_end = report_start.add(hours=24)
+
     report_start_date_string = (
         f"{report_start.year:04d}-"
         + f"{report_start.month:02d}-"
         + f"{report_start.day:02d}"
+    )
+
+    report_end_date_string = (
+        f"{report_end.year:04d}-"
+        + f"{report_end.month:02d}-"
+        + f"{report_end.day:02d}"
     )
 
     start_hour = report_start.hour
@@ -399,7 +407,7 @@ def report(year: int, month: int, day: int) -> str:
     return flask.render_template(
         "report.html",
         start_date_string=report_start_date_string,
-        end_date_string=report_name,
+        end_date_string=report_end_date_string,
         start_hour=start_hour,
         event_infos=event_infos,
     )
