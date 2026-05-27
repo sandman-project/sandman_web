@@ -1,6 +1,5 @@
 """Implements the reports list and individual reports webpages."""
 
-import datetime
 import json
 import logging
 import os
@@ -15,9 +14,6 @@ _logger = logging.getLogger("sandman.routines")
 
 _report_prefix = "sandman"
 _report_extension = ".rpt"
-
-# The date and time format for report events.
-_report_date_time_format = "%Y/%m/%d %H:%M:%S %Z"
 
 
 type ReportEventInfo = typing.Mapping[
@@ -316,19 +312,32 @@ def index() -> str:
 
         date_string = base_name[len(_report_prefix) :]
 
-        # Try to convert the name to a date.
-        date_format = "%Y-%m-%d"
+        # Try to convert the name to a date. Expected format: YYYY-MM-DD
+        date_elements = date_string.split("-")
+
+        if len(date_elements) < 3:
+            continue
 
         try:
-            date = datetime.datetime.strptime(date_string, date_format)
+            year = int(date_elements[0])
+
+        except ValueError:
+            continue
+
+        try:
+            month = int(date_elements[1])
+
+        except ValueError:
+            continue
+
+        try:
+            day = int(date_elements[2])
 
         except ValueError:
             continue
 
         # Add a dictionary containing the date.
-        reports.append(
-            {"year": date.year, "month": date.month, "day": date.day}
-        )
+        reports.append({"year": year, "month": month, "day": day})
 
     # Sort them in descending order.
     sorted_reports = sorted(
