@@ -125,7 +125,7 @@
         <th>#</th>
         <th>Date</th>
         <th>Time</th>
-        <th>Event</th>
+        <th>Info</th>
       </tr>
       {% for event_info in event_infos -%}
         <tr>
@@ -133,7 +133,7 @@
           <td>{{ "{:04d}-{:02d}-{:02d}".format(event_info['year'], event_info['month'], event_info['day']) }}</td>
           <td>{{ "{:02d}:{:02d}:{:02d}".format(12 if event_info['hour'] % 12 == 0 else event_info['hour'] % 12, event_info['minute'], event_info['second']) }}
           {%- if event_info['hour'] < 12 %} am{% else %} pm{% endif %}</td>
-          <td>{{ event_info['event'] }}</td>
+          <td>{{ event_info['info'] }}</td>
         </tr>
       {% endfor %}
     </table>
