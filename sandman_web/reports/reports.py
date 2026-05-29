@@ -382,7 +382,7 @@ def report(year: int, month: int, day: int) -> str:
 
         # Figure out how many seconds from the start this event is.
         since_start = event_time - report_start
-        seconds_from_start = int(since_start.in_seconds())
+        seconds_from_start = int(since_start.total("seconds"))
 
         event_info = {
             "year": event_time.year,
