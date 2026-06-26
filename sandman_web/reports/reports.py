@@ -15,7 +15,7 @@ _report_extension = ".rpt"
 
 
 def _get_reports_path() -> str:
-    return flask.current_app.config["BASE_DIR"] + "/reports"
+    return str(flask.current_app.config["BASE_DIR"]) + "/reports"
 
 
 blueprint = flask.Blueprint(
@@ -105,6 +105,9 @@ def report(year: int, month: int, day: int) -> str:
 
     report_start = loaded_report.start
 
+    if report_start is None:
+        abort(404, "Report invalid.")
+
     # Now that we have pulled data out of the file, do some processing to
     # convert it to what we need for display. Part of that will be converting
     # to dictionaries but also calculating the offset from the start time.
@@ -115,6 +118,9 @@ def report(year: int, month: int, day: int) -> str:
             continue
 
         event_time = event.when
+
+        if event_time is None:
+            continue
 
         # Figure out how many seconds from the start this event is.
         since_start = event_time - report_start
