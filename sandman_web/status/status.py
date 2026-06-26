@@ -3,9 +3,9 @@
 import enum
 
 import docker
+import flask
 import psutil
 import requests
-from flask import Blueprint, render_template
 
 
 class _HealthType(enum.Enum):
@@ -78,7 +78,7 @@ def is_healthy() -> bool:
     return False
 
 
-status_bp = Blueprint("status", __name__, template_folder="templates")
+status_bp = flask.Blueprint("status", __name__, template_folder="templates")
 
 
 @status_bp.route("/status")
@@ -102,7 +102,7 @@ def status_home() -> str:
         if rhasspy_health == _HealthType.NOT_FOUND:
             rhasspy_status += "The Rhasspy container may not exist."
 
-    return render_template(
+    return flask.render_template(
         "status.html",
         sandman_status=sandman_status,
         rhasspy_status=rhasspy_status,
