@@ -4,8 +4,10 @@ import logging
 import logging.handlers
 import os
 import pathlib
+import typing
 
-from flask import Flask, redirect, request
+import flask
+import werkzeug
 
 # Create a formatter.
 log_formatter = logging.Formatter(
@@ -23,12 +25,14 @@ logger = logging.getLogger()
 logger.addHandler(file_handler)
 
 
-def create_app(test_config: dict[any] = None) -> Flask:
+def create_app(
+    test_config: dict[typing.Any, typing.Any] | None = None,
+) -> flask.Flask:
     """Create and configure the app.
 
     test_config - Which testing configuration to use, if any.
     """
-    app = Flask(__name__, instance_relative_config=True)
+    app = flask.Flask(__name__, instance_relative_config=True)
 
     # Get the base directory for the data files.
     base_dir = str(pathlib.Path.home()) + "/.sandman"
@@ -58,11 +62,11 @@ def create_app(test_config: dict[any] = None) -> Flask:
 
     # A path to redirect to the rhasspy admin home page.
     @app.route("/rhasspy")
-    def rhasspy() -> str:
-        server_ip = request.host.split(":")[0]
-        return redirect("http://" + server_ip + ":12101")
+    def rhasspy() -> werkzeug.wrappers.response.Response:
+        server_ip = flask.request.host.split(":")[0]
+        return flask.redirect("http://" + server_ip + ":12101")
 
-    # Register blueprints
+    # Register blueprints.
     from .reports import reports
 
     app.register_blueprint(reports.blueprint)
@@ -73,7 +77,7 @@ def create_app(test_config: dict[any] = None) -> Flask:
 
     # Create global status variable.
     @app.context_processor
-    def status_processor() -> dict[any]:
+    def status_processor() -> dict[typing.Any, typing.Any]:
         if status.is_healthy() == True:
             health_issue = False
         else:
