@@ -14,8 +14,12 @@ Please make all feature requests in the Sandman Discord. Only use Issues for rep
  ```bash
  uvx pre-commit run --all-files
  ```
-  - Add any relevant tests. Ensure that all the tests pass. To run the tests with uv, you can use the following command from the repository root.
-  ```bash
-  uv run pytest
+ - We use mypy to perform STRICT type checking on non-test code. To run mypy with uv, you can use the following command from the repository root.
+ ```bash
+ uv run mypy
   ```
-  - Open a pull request. Please try to keep pull requests as small and logically coherent as makes sense. That will help make them easier to review.
+ - Add any relevant tests. Ensure that all the tests pass. To run the tests with uv, you can use the following command from the repository root.
+ ```bash
+ uv run pytest
+ ```
+ - Open a pull request. Please try to keep pull requests as small and logically coherent as makes sense. That will help make them easier to review.

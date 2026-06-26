@@ -64,5 +64,8 @@ sandman-core = { git = "https://github.com/sandman-project/sandman_core", tag = 
 
 [dependency-groups]
 dev = [
+    "mypy>=2.1.0",
     "pytest>=9.0.3",
+    "types-docker>=7.1.0.20260518",
+    "types-psutil>=7.2.2.20260518",
 ]
