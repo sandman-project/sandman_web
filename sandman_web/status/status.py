@@ -3,9 +3,8 @@
 import enum
 
 import docker
-import psutil
+import flask
 import requests
-from flask import Blueprint, render_template
 
 
 class _HealthType(enum.Enum):
@@ -14,25 +13,27 @@ class _HealthType(enum.Enum):
     NOT_FOUND = 3
 
 
-def _is_process_running(process_name: str) -> bool:
-    """Check whether a Linux process is running based on process name."""
-    for process in psutil.process_iter(["pid", "name"]):
-        if process.info["name"] == process_name:
-            return True
-
-    return False
-
-
 def _check_sandman_health() -> _HealthType:
     """Check that Sandman is running.
 
-    Returns a status code based on whether process is running.
+    Returns a status code based on container status.
     """
-    process_name = "sandman"
-    if _is_process_running(process_name):
-        return _HealthType.RUNNING
+    # Get the contatiner status.
+    client = docker.DockerClient(base_url="unix://var/run/docker.sock")
+
+    try:
+        container = client.containers.get("sandman_main")
+
+    except Exception:
+        return _HealthType.NOT_FOUND
+
     else:
-        return _HealthType.NOT_RUNNING
+        container_status = container.attrs["State"]["Status"]
+
+    if container_status == "running":
+        return _HealthType.RUNNING
+
+    return _HealthType.NOT_RUNNING
 
 
 def _check_rhasspy_health() -> _HealthType:
@@ -78,7 +79,7 @@ def is_healthy() -> bool:
     return False
 
 
-status_bp = Blueprint("status", __name__, template_folder="templates")
+status_bp = flask.Blueprint("status", __name__, template_folder="templates")
 
 
 @status_bp.route("/status")
@@ -90,9 +91,9 @@ def status_home() -> str:
 
     # Check that Sandman is in good health.
     if sandman_health == _HealthType.RUNNING:
-        sandman_status = "Sandman process is running. ✔️"
+        sandman_status = "Sandman is running. ✔️"
     else:
-        sandman_status = "Sandman process is not running. ❌"
+        sandman_status = "Sandman is not running. ❌"
 
     # Check that Rhasspy is in good health.
     if rhasspy_health == _HealthType.RUNNING:
@@ -102,7 +103,7 @@ def status_home() -> str:
         if rhasspy_health == _HealthType.NOT_FOUND:
             rhasspy_status += "The Rhasspy container may not exist."
 
-    return render_template(
+    return flask.render_template(
         "status.html",
         sandman_status=sandman_status,
         rhasspy_status=rhasspy_status,
