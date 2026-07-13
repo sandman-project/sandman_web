@@ -36,7 +36,6 @@ nav ul {
 
 nav ul li a {
    color: white;
-   background-color: purple;
    display: block;
    padding: 0.5rem;
    margin: 0.25rem;
@@ -45,12 +44,13 @@ nav ul li a {
 }
 
 nav ul li a:hover {
-   background-color: blueviolet;
+   color: black;
+   background-color: #7a7492;
 }
 
 .button {
    color: white;
-   background-color: purple;
+   background-color: #29075d;
    display: block;
    padding: 0.5rem;
    margin: 0.25rem;
@@ -59,20 +59,33 @@ nav ul li a:hover {
 }
 
 .button:hover {
-   background-color: blueviolet;
+   color: black;
+   background-color: #7a7492;
 }
 
 .blink-bg {
-   color: #fff;
-   padding: 10px;
+   color: white;
+   padding: 0.5rem;
    display: inline-block;
-   border-radius: 5px;
+   border-radius: 0.5rem;
    animation: blinkingBackground 2s infinite;
 }
-@keyframes blinkingBackground{
-   0%		{ background-color: purple;}
-   25%		{ background-color: purple;}
-   50%		{ background-color: #ff0000;}
-   75%		{ background-color: #ff0000;}
-   100%	        { background-color: #ff0000;}
+@keyframes blinkingBackground {
+   0%		{ background-color: #29075d; }
+   25%		{ background-color: #29075d; }
+   50%		{ background-color: #ff0000; }
+   75%		{ background-color: #ff0000; }
+   100%	        { background-color: #ff0000; }
+}
+
+.blink-bg:hover {
+   color: black;
+   animation: blinkingBackgroundHover 2s infinite;
+}
+@keyframes blinkingBackgroundHover {
+   0%		{ background-color: #7a7492; }
+   25%		{ background-color: #7a7492; }
+   50%		{ background-color: #ff0000; }
+   75%		{ background-color: #ff0000; }
+   100%	        { background-color: #ff0000; }
 }
