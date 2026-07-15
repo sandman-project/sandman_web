@@ -71,7 +71,7 @@ def create_app(
 
     app.register_blueprint(reports.blueprint)
 
-    from .status import status
+    from . import status
 
     app.register_blueprint(status.status_bp)
 
