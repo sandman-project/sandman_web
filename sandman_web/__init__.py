@@ -67,11 +67,11 @@ def create_app(
         return flask.redirect("http://" + server_ip + ":12101")
 
     # Register blueprints.
-    from .reports import reports
+    from . import reports
 
     app.register_blueprint(reports.blueprint)
 
-    from .status import status
+    from . import status
 
     app.register_blueprint(status.status_bp)
 
