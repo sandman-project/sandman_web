@@ -1,0 +1,24 @@
+services:
+  sandman_web:
+    image: sandman/sandman_web
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: sandman_web
+    init: true
+    restart: unless-stopped
+    volumes:
+      - ~:/home/app
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - sandman_network
+    ports:
+      - 5000:5000
+    environment:
+      - FLASK_APP=sandman_web/__init__.py
+      - FLASK_DEBUG=0
+
+networks:
+  sandman_network:
+    name: sandman_network
+    external: true
