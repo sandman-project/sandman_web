@@ -45,7 +45,7 @@ def create_app(
     # Get the base directory for the data files.
     base_dir = str(pathlib.Path.home()) + "/.sandman"
 
-    _setup_logging(base_dir)
+    _setup_logging(base_dir + "/")
 
     app.config.from_mapping(
         SECRET_KEY="dev",
