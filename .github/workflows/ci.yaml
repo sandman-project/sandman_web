@@ -24,4 +24,7 @@ jobs:
       - name: Run tests
         run: uv run pytest
         
+      - name: Run type checking
+        run: uv run mypy
+
     
