@@ -17,6 +17,7 @@ services:
     environment:
       - FLASK_APP=sandman_web/__init__.py
       - FLASK_DEBUG=0
+      - RHASSPY_HOSTNAME=rhasspy
 
 networks:
   sandman_network:

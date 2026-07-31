@@ -1,6 +1,7 @@
 """Implements the status webpage."""
 
 import enum
+import os
 
 import flask
 import requests
@@ -19,9 +20,12 @@ def _check_sandman_health() -> _HealthType:
 
 def _check_rhasspy_health() -> _HealthType:
     """Check the health of Rhasspy."""
+    hostname = os.environ.get("RHASSPY_HOSTNAME", "localhost")
+    address = f"http://{hostname}:12101"
+
     # Get the Rhasspy web response.
     try:
-        web_response = requests.get("http://localhost:12101")
+        web_response = requests.get(address)
 
     except Exception:
         return _HealthType.NOT_RUNNING
@@ -70,8 +74,6 @@ def status_home() -> str:
         rhasspy_status = "Rhasspy is running. ✔️"
     else:
         rhasspy_status = "Rhasspy is not running. ❌"
-        if rhasspy_health == _HealthType.NOT_FOUND:
-            rhasspy_status += "The Rhasspy container may not exist."
 
     return flask.render_template(
         "status.html",
