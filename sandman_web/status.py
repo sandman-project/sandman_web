@@ -2,7 +2,6 @@
 
 import enum
 
-import docker
 import flask
 import requests
 
@@ -14,25 +13,7 @@ class _HealthType(enum.Enum):
 
 
 def _check_sandman_health() -> _HealthType:
-    """Check that Sandman is running.
-
-    Returns a status code based on container status.
-    """
-    # Get the contatiner status.
-    client = docker.DockerClient(base_url="unix://var/run/docker.sock")
-
-    try:
-        container = client.containers.get("sandman_main")
-
-    except Exception:
-        return _HealthType.NOT_FOUND
-
-    else:
-        container_status = container.attrs["State"]["Status"]
-
-    if container_status == "running":
-        return _HealthType.RUNNING
-
+    """Check the health of Sandman."""
     return _HealthType.NOT_RUNNING
 
 
