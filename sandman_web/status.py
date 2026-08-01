@@ -8,14 +8,13 @@ import requests
 
 
 class _HealthType(enum.Enum):
-    RUNNING = 1
-    NOT_RUNNING = 2
-    NOT_FOUND = 3
+    HEALTHY = 1
+    NOT_HEALTHY = 2
 
 
 def _check_sandman_health() -> _HealthType:
     """Check the health of Sandman."""
-    return _HealthType.NOT_RUNNING
+    return _HealthType.NOT_HEALTHY
 
 
 def _check_rhasspy_health() -> _HealthType:
@@ -28,26 +27,25 @@ def _check_rhasspy_health() -> _HealthType:
         web_response = requests.get(address)
 
     except Exception:
-        return _HealthType.NOT_RUNNING
+        return _HealthType.NOT_HEALTHY
 
     web_status = web_response.status_code
 
     # Check that the Rhasspy web response is OK.
     if web_status == 200:
-        return _HealthType.RUNNING
+        return _HealthType.HEALTHY
 
-    return _HealthType.NOT_RUNNING
+    return _HealthType.NOT_HEALTHY
 
 
 def is_healthy() -> bool:
     """Return whether the status is healthy overall."""
-    sandman_health = _check_sandman_health()
+    _sandman_health = _check_sandman_health()
     rhasspy_health = _check_rhasspy_health()
 
-    if (
-        sandman_health == _HealthType.RUNNING
-        and rhasspy_health == _HealthType.RUNNING
-    ):
+    # For now we don't include the Sandman health check, because it needs to
+    # be reimplemented.
+    if rhasspy_health == _HealthType.HEALTHY:
         return True
 
     return False
@@ -60,20 +58,17 @@ status_bp = flask.Blueprint("status", __name__, template_folder="templates")
 def status_home() -> str:
     """Implement the route for the status page."""
     # Perform the Sandman related health checks.
-    sandman_health = _check_sandman_health()
+    _sandman_health = _check_sandman_health()
     rhasspy_health = _check_rhasspy_health()
 
     # Check that Sandman is in good health.
-    if sandman_health == _HealthType.RUNNING:
-        sandman_status = "Sandman is running. ✔️"
-    else:
-        sandman_status = "Sandman is not running. ❌"
+    sandman_status = "Sandman health is unknown."
 
     # Check that Rhasspy is in good health.
-    if rhasspy_health == _HealthType.RUNNING:
-        rhasspy_status = "Rhasspy is running. ✔️"
+    if rhasspy_health == _HealthType.HEALTHY:
+        rhasspy_status = "Rhasspy is healthy. ✔️"
     else:
-        rhasspy_status = "Rhasspy is not running. ❌"
+        rhasspy_status = "Rhasspy is not healthy. ❌"
 
     return flask.render_template(
         "status.html",
