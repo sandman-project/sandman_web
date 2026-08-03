@@ -45,6 +45,18 @@ def create_app(
     # Get the base directory for the data files.
     base_dir = str(pathlib.Path.home()) + "/.sandman"
 
+    base_path = pathlib.Path(base_dir)
+
+    # If the base directory doesn't exist, try to create it.
+    base_dir_exists = base_path.exists()
+
+    if base_dir_exists == False:
+        try:
+            base_path.mkdir()
+
+        except Exception:
+            print(f"Failed to create base directory '{base_dir}'")
+
     _setup_logging(base_dir + "/")
 
     app.config.from_mapping(
