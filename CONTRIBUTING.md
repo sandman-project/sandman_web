@@ -9,8 +9,13 @@ Please make all feature requests in the Sandman Discord. Only use Issues for rep
 ## Development Process
 
  - If you haven't already, fork the repository. You will not be able to push to main or new branches on the original repository.
+ - Sandman development uses [uv](https://docs.astral.sh/uv). If you have not installed uv, you can find instructions [here](https://docs.astral.sh/uv/getting-started/installation/).
+ - To run Sandman web in debug using uv, you can use the following command from the repository root. 
+  ```bash
+  uv run flask --app sandman_web run --debug --host 0.0.0.0
+  ```
  - Write and test your code using a new branch. Please follow the [Coding Standards](CODING-STANDARDS.md).
- - We use Ruff in order to lint and format code. This is set up using pre-commit to automatically check pull requests. Although you don't need to run this as an actual pre-commit hook locally, it's a good idea to run it prior to making a pull request. The easiest way to do that is with [uv](https://docs.astral.sh/uv). If you have not installed uv, you can find instructions [here](https://docs.astral.sh/uv/getting-started/installation/).
+ - We use Ruff in order to lint and format code. This is set up using pre-commit to automatically check pull requests. Although you don't need to run this as an actual pre-commit hook locally, it's a good idea to run it prior to making a pull request. To run the pre-commit hook with uv you can use the following command from the repository root.
  ```bash
  uvx pre-commit run --all-files
  ```
