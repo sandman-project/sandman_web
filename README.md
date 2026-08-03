@@ -4,17 +4,20 @@
 
 Sandman Web is part of the [Sandman Project](https://github.com/sandman-project), which aims to provide a device that allows hospital style beds to be controlled by voice. This component provides a web interface. The web interface currently has the capability to view reports that are automatically collected each day by Sandman. Other features are planned, but have not completed development yet. At the moment, Linux is the only supported operating system.
 
-## Running From Source
+## Sandman Web Setup
 
-First, obtain a copy of the source using your preferred method (for example cloning the repository or downloading a zip).
+If you are interested in running Sandman Web in development mode, please read [CONTRIBUTING](CONTRIBUTING.md). If you wish to run it in deployment mode, you can use the following instructions. 
 
-Sandman web is developed using Flask and is really easy to run with [uv](https://docs.astral.sh/uv). If you have not installed uv, you can find instructions [here](https://docs.astral.sh/uv/getting-started/installation/). Using a command like the following will start the web service in debug mode:
+Obtain a copy of the source. Then use the following commands to start the Docker container:
 
 ```bash
-uv run flask --app sandman_web run --debug --host 0.0.0.0
+cd ~/sandman_main
+```
+```bash
+docker compose up -d
 ```
 
-Then in your web browser enter the following URL: YOUR_SANDMAN_IP_ADDRESS:5000. You can stop the web server by pressing CTRL + C in the terminal.
+Then in your web browser enter the following URL: YOUR_SANDMAN_IP_ADDRESS:5000.
 
 ## License
 
